@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+r'''
+./p01A-missing-number
+This program finds the missing number in an array of integers.
+* by: Leomar Duran <https://github.com/lduran2>
+* date: 2019-06-27T21:05ZQ
+* for: https://dev.to/javinpaul/50-data-structure-and-algorithms-problems-from-coding-interviews-4lh2
+'''
+
+import random
+
+def main():
+    r'''
+    Tests the find_missing function on a shuffled array from 1 to 100.
+    '''
+    min = 1 # The minimum value in the array
+    max = 100 # The maximum value in the array
+
+    # generate the list of numbers
+    numbers = generate_missing_number_list(min, max)
+    # find the missing number
+    missing = find_missing(numbers, min, max)
+
+    # The output:
+    print(f'The array:')
+    print(numbers)
+    print()
+    print(f"The missing number is {missing}.")
+
+def find_missing(numbers, min, max):
+    r'''
+    Finds the number missing in the array of integers @numbers whose
+    elements are in the interval [min, max].
+
+    {1} Calculates the trapezoidal number from $k to $l.
+    {2} Subtracts each number in the array from the trapezoidal
+        number.
+    {3} The resulting number is the missing number
+    '''
+
+    sum = trapezoidal_number(min, max) #{1}
+    for x in numbers: #{2}
+        sum -= x
+    RESULT = sum #{3}
+    return RESULT
+
+def trapezoidal_number(k, l):
+    r'''
+    Calculates the trapezoidal number with rows from $k to $l.
+    '''
+    return (triangular_number(l) - triangular_number(k))
+
+def triangular_number(k):
+    r'''
+    Calculates the triangular number with $k rows.
+    '''
+    return ((k*(k + 1)) >> 1)
+
+def generate_missing_number_list(min, max):
+    r'''
+    Generates a list of shuffled numbers in the interval [min, max]
+    with one number missing.
+
+    {1} Chooses a random number in the interval [min, max[ to replace.
+    {2} Creates an listin the interval [min, max[.
+    {3} Replaces the random number [1] in the list with $max.
+    {4} Shuffles the list.
+
+    params:
+        min -- the minimum value in the list
+        max -- the maximum value in the list
+    '''
+    missing = random.randrange(min, max) #{1}
+    #print(missing)
+    numbers = list(range(min, max)) #{2}
+    numbers[missing - min] = max #{3}
+    random.shuffle(numbers) #{4}
+    return numbers
+
+main()
+
