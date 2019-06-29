@@ -1,31 +1,35 @@
 #!/usr/bin/env python3
 r'''
 ./p01A-missing-number
-This program finds the missing number in an array of integers.
+This program finds the missing number in a list of integers.
 * by: Leomar Duran <https://github.com/lduran2>
-* date: 2019-06-27T21:05ZQ
-* for: https://dev.to/javinpaul/50-data-structure-and-algorithms-problems-from-coding-interviews-4lh2
+* date: 2019-06-28T19:00ZQ
+* for: https://dev.to/javinpaul/50-data-structure-and-algorithms-\
+       problems-from-coding-interviews-4lh2
 '''
 
-import random
+import random # for picking the missing number
+import logging # for logging
+import sys # for command line arguments
 
-def main():
+def main(
+    min = 1, # The minimum value in the array to generate
+    max = 100, # The maximum value in the array to generate
+    print = print # The printing function
+):
     r'''
     Tests the find_missing function on a shuffled array from 1 to 100.
     '''
-    min = 1 # The minimum value in the array
-    max = 100 # The maximum value in the array
-
     # generate the list of numbers
-    numbers = generate_missing_number_list(min, max)
+    NUMBERS = generate_missing_number_list(min, max)
     # find the missing number
-    missing = find_missing(numbers, min, max)
+    MISSING = find_missing(NUMBERS, min, max)
 
     # The output:
-    print(f'The array:')
-    print(numbers)
+    print(r'The array:')
+    print(NUMBERS)
     print()
-    print(f"The missing number is {missing}.")
+    print(r'The missing number is ', MISSING, r'.', sep=r'')
 
 def find_missing(numbers, min, max):
     r'''
@@ -37,7 +41,6 @@ def find_missing(numbers, min, max):
         number.
     {3} The resulting number is the missing number
     '''
-
     sum = trapezoidal_number(min, max) #{1}
     for x in numbers: #{2}
         sum -= x
@@ -62,7 +65,7 @@ def generate_missing_number_list(min, max):
     with one number missing.
 
     {1} Chooses a random number in the interval [min, max[ to replace.
-    {2} Creates an listin the interval [min, max[.
+    {2} Creates an list in the interval [min, max[.
     {3} Replaces the random number [1] in the list with $max.
     {4} Shuffles the list.
 
@@ -70,12 +73,16 @@ def generate_missing_number_list(min, max):
         min -- the minimum value in the list
         max -- the maximum value in the list
     '''
-    missing = random.randrange(min, max) #{1}
-    #print(missing)
+    MISSING = random.randrange(min, max) #{1}
+    logging.debug(r'Missing number chosen: %d', MISSING)
     numbers = list(range(min, max)) #{2}
-    numbers[missing - min] = max #{3}
+    numbers[MISSING - min] = max #{3}
     random.shuffle(numbers) #{4}
     return numbers
 
-main()
-
+if (r'__main__' == __name__):
+    # if '--debug' flag was given in command line arguments,
+    # place the logger in debug mode
+    if (r'--debug' in sys.argv):
+        logging.basicConfig(level=logging.DEBUG)
+    main()

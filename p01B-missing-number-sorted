@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+r'''
+./p01B-missing-number-sorted
+This program finds the missing number in a list of integers.  This
+implementation is optimized for sorted lists through use of binary
+search.
+
+* by: Leomar Duran <https://github.com/lduran2>
+* date: 2019-06-28T23:53ZQ
+* for: https://dev.to/javinpaul/50-data-structure-and-algorithms-\
+       problems-from-coding-interviews-4lh2
+'''
+
+import random # for picking the missing number
+import logging # for logging
+import sys # for command line arguments
+
+def main(
+    min = 1, # the minimum value in the array to generate
+    max = 100, # the maximum value in the array to generate
+    print = print # the printing function
+):
+    r'''
+    Tests the find_missing function on a shuffled array from 1 to 100.
+    '''
+    # generate the list of numbers
+    NUMBERS = generate_missing_number_list(min, max)
+    # find the missing number
+    MISSING = find_missing(NUMBERS, min, max)
+
+    # The output:
+    print('The array:')
+    print(NUMBERS)
+    print()
+    print('The missing number is ', MISSING, '.', sep='')
+
+def find_missing(numbers, min, max):
+    r'''
+    Finds the number missing in the array of integers @numbers whose
+    elements are in the interval [min, max].
+
+    {1} Calculates the rightmost index for a binary search.
+    {2} Uses binary search to find the number before the missing.
+    {3} The missing number is one more than the number found.
+    '''
+    RIGHT = ((max - min) - 1) #{1}
+    INDEX = binary_search(numbers, RIGHT, #{2}
+        missing_number_arithpredicate)
+    MISSING = (numbers[INDEX] + 1) #{3}
+    return MISSING
+
+def missing_number_arithpredicate(subject):
+    r'''
+    This arithpredicate uses the number at $list[mid], and returns -1
+    if the number and the following number are as expected, 0 if only
+    the current number is as expected and the following are not, or
+    +1 if the current number is not expected.
+
+    A number $list[index] is expected if it equals $(list[0] + index).
+
+    {1} Divides up the @subject parameter.
+    {2} Finds the minimum, actual current element, and calculates the
+        expected element.
+    {3} Compares the actual and expected current elements.
+    {4} If the actual is less or equal,
+        {5} checks that the next elemet is still within range,
+            and if so, return 0, avoiding index overflow.
+        {6} checks whether the next element is greater than one more
+            than the current, and if so, return 0.
+        If neither {5,6}, the comparator will be negative.
+    If not {4}, the comparator will be positive.
+    {7} Returns the comparator.
+    '''
+    (index, list, off, len) = subject #{1}
+
+    #{2}
+    MIN = list[0]
+    ELEMENT = list[index]
+    EXPECTED = (index + MIN)
+    
+    comparison = (ELEMENT - EXPECTED) #{3}
+
+    if (comparison <= 0): #{4}
+        if ((index + 1) == len): #{5}
+            return 0
+        
+        NEXT = list[index + 1] #{6}
+        comparison = (NEXT - (ELEMENT + 2))
+        if (comparison > 0):
+            comparison = 0
+    
+    return comparison #{7}
+
+def binary_search(list, right, arithpredicate, left = 0, default = -1):
+    r'''
+    Searches the list within indices in the interval [left, right] for
+    an element that satisfies the given arithpredicate.
+
+    Starts with the entire list as the sublist.
+    {1} Loops until the sublist is empty.
+        {2} Calculates the midpoint of the sublist.
+        {3} Tests the element at the midpoint with the arithpredicate.
+        {4} If the element is too low, shifts the left endpoint of the
+            sublist to the midpoint
+        {5} If the element is too high, shifts the right endpoint of
+            the sublist to the endpoint
+        {6} Otherwise, returns the midpoint.
+    {7} If the sublist is empty, returns $default.
+
+    params:
+        list -- the list to search
+        right -- the index of the rightmost endpoint of the list
+        arithpredicate -- an arithpredicate with which to search the
+                          list
+        left -- the index of the leftmost endpoint of the list
+        default -- the default index to return
+
+    returns:
+        the index of the element satisfying the arithpredicate, or
+        $default (-1 by default) if no such element is found
+    '''
+    LEN = (right + 1) # the length of the entire list
+    logging.debug(r'Searching through list of size: %d...', LEN)
+    while (left <= right): #{1}
+        MID = ((left + right) >> 1) #{2}
+        logging.debug(r'    Midpoint: %d', MID)
+        COMPARISON = arithpredicate((MID, list, left, LEN)) #{3}
+        if (COMPARISON < 0): #{4}
+            left = (MID + 1)
+        elif (COMPARISON > 0): #{5}
+            right = (MID - 1)
+        else: #{6}
+            return MID
+    return default #{7}
+
+def generate_missing_number_list(min, max):
+    r'''
+    Generates a list of shuffled numbers in the interval [min, max]
+    with one number missing.
+
+    {1} Chooses a random number in the interval [min, max[ to replace.
+    {2} Creates an list in the interval [min, max], skipping the
+        number to replace.
+
+    params:
+        min -- the minimum value in the list
+        max -- the maximum value in the list
+    '''
+    MISSING = random.randrange(min, max) #{1}
+    logging.debug(r'Missing number chosen: %d', MISSING)
+    numbers = [x for x in range(min, (max + 1)) if (x != MISSING)] #{2}
+    return numbers
+    
+
+if (r'__main__' == __name__):
+    # if '--debug' flag was given in command line arguments,
+    # place the logger in debug mode
+    if (r'--debug' in sys.argv):
+        logging.basicConfig(level=logging.DEBUG)
+    main()
